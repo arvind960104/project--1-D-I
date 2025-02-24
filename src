@@ -1,0 +1,41 @@
+
+		// Traffic Car LEDS shift register
+		for (int i = 20; i>0; i--)
+		{
+			if ( cars[i] == YES )
+				GPIO_SetBits(GPIOC, DATA);
+			else
+				GPIO_ResetBits(GPIOC, DATA);
+
+			// Cycle
+			GPIO_SetBits(GPIOC, CLOCK);
+			GPIO_ResetBits(GPIOC, CLOCK);
+		}
+
+		// Moving ALL cars on GREEN lights
+		if ( LIGHT == GREEN )
+		{
+			for (int i = 19; i > 0; i--)
+				cars[i] = cars[i-1];
+		}
+
+		// Conditions for stopping on RED and YELLOW lights
+		else
+		{
+			// Shifting cars before stop sign
+			for (int i = 8; i > 0; i--)
+			{
+				if (cars[i] == NO)
+				{
+					cars[i] = cars[i-1];
+					cars[i-1] = NO;
+				}
+			}
+
+			// Shifting cars after stop sign
+			for (int i = 19; i > 9; i--)
+			{
+				cars[i] = cars[i-1];
+				cars[i-1] = NO;
+			}
+		}
