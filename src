@@ -1,4 +1,58 @@
+void Traffic_Light_State_Task( void *pvParameters )
+{
+	xTimerStart( xTimer_GREEN, 0);
 
+	uint16_t LIGHT = GREEN;
+	xQueueOverwrite(xQueue_LIGHT, &LIGHT);
+
+	for( ;; )
+	{
+		vTaskDelay(100 * TICK_RATE );
+	}
+
+}
+
+/*-----------------------------------------------------------*/
+
+void vCallbackGreen ( TimerHandle_t xTimer)
+{
+	xTimerStart( xTimer_YELLOW, 0 );
+
+	uint16_t LIGHT = YELLOW;
+	xQueueOverwrite(xQueue_LIGHT, &LIGHT);
+}
+
+/*-----------------------------------------------------------*/
+
+void vCallbackYellow ( TimerHandle_t xTimer)
+{
+	int flow;
+	BaseType_t xStatus = xQueuePeek( xQueue_FLOW, &flow, TICK_RATE );
+
+	if ( xStatus == pdPASS )
+	{
+		xTimerChangePeriod( xTimer_RED, pdMS_TO_TICKS(10000 - 50 * flow), 0 );
+
+		uint16_t LIGHT = RED;
+		xQueueOverwrite(xQueue_LIGHT, &LIGHT);
+	}
+}
+
+/*-----------------------------------------------------------*/
+
+void vCallbackRed ( TimerHandle_t xTimer)
+{
+	int flow;
+	BaseType_t xStatus = xQueuePeek( xQueue_FLOW, &flow, TICK_RATE );
+
+	if ( xStatus == pdPASS )
+	{
+		xTimerChangePeriod( xTimer_GREEN, pdMS_TO_TICKS(5000 + 50 * flow), 0 );
+
+		uint16_t LIGHT = GREEN;
+		xQueueOverwrite(xQueue_LIGHT, &LIGHT);
+	}
+}
 		// Traffic Car LEDS shift register
 		for (int i = 20; i>0; i--)
 		{
